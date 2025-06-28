@@ -4,30 +4,27 @@ class SocketService {
   private socket: Socket | null = null;
   private token: string | null = null;
 
-  connect(token: string) {
-    this.token = token;
-    this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001', {
-      autoConnect: false,
-    });
+ connect(token: string) {
+  this.token = token;
+  this.socket = io(import.meta.env.VITE_API_URL || 'http://localhost:3001', {
+    auth: {
+      token,
+    },
+    transports: ['websocket'], // force websocket to avoid polling issues
+    withCredentials: true,
+  });
 
-    this.socket.connect();
+  this.socket.on('connect', () => {
+    console.log('✅ Connected to server:', this.socket?.id);
+  });
 
-    // Authenticate after connection
-    this.socket.on('connect', () => {
-      console.log('Connected to server');
-      this.socket?.emit('authenticate', token);
-    });
+  this.socket.on('connect_error', (error) => {
+    console.error('❌ Connection error:', error.message);
+  });
 
-    this.socket.on('authenticated', (data) => {
-      console.log('Authenticated:', data);
-    });
+  return this.socket;
+}
 
-    this.socket.on('auth_error', (error) => {
-      console.error('Authentication error:', error);
-    });
-
-    return this.socket;
-  }
 
   disconnect() {
     if (this.socket) {

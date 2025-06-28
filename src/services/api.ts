@@ -15,6 +15,7 @@ api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
+     console.log('🔐 Attached token to request:', token);
   }
   return config;
 });
@@ -34,9 +35,12 @@ api.interceptors.response.use(
 // Auth API
 export const authAPI = {
   sendOTP: (phone: string) => api.post('/auth/send-otp', { phone }),
-  verifyOTP: (phone: string, otp: string, name?: string) => 
+
+  verifyOTP: (phone: string, otp: string, name?: string) =>
     api.post('/auth/verify-otp', { phone, otp, name }),
+
   getCurrentUser: () => api.get('/auth/me'),
+
   logout: () => api.post('/auth/logout'),
 };
 

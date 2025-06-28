@@ -16,7 +16,7 @@ import messageRoutes from './routes/messages.js';
 import conversationRoutes from './routes/conversations.js';
 
 // Import socket handlers
-import { handleSocketConnection } from './socket/socketHandlers.js';
+import { handleSocketAuthentication, handleSocketConnection } from './socket/socketHandlers.js';
 
 dotenv.config();
 
@@ -119,7 +119,8 @@ app.get('/api/info', (req, res) => {
   });
 });
 
-// Socket.IO connection handling (works without database)
+handleSocketAuthentication(io);
+
 io.on('connection', (socket) => {
   if (isDbConnected) {
     handleSocketConnection(socket, io);
